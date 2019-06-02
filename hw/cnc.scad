@@ -20,9 +20,9 @@
  */
 
 /**
- * Barre (réglable)
+ * Barre (réglable) lxlx(l/10) x 1000mm
  */
-module barre(l = 50) {
+module barre(l=50) {
     color("grey") union() for (i=[0,1])translate([0,(1-i)*l*(9/20),i*l*(9/20)]) cube([1000,l*(1-9*i/10),l*(9*i/10+0.1)], center=true);
 }
 
@@ -40,33 +40,35 @@ module roue() {
     }
 }
 
-module chariotX(xPos) {
-    for (i=[-1,1]) {
-
-// 4 roues
-        for (x=[-1,1], y=[-1,1])
-            translate([xPos+x*50,i*531.8203,y*45.11]) rotate([90,0,0]) {
-                roue();
+/**
+ * Chariot X
+ */
+module chariotX() {
+    for (x=[-1,1], z=[-1,1]) translate([x*50,0,z*(50/sqrt(2)+9.80)]) rotate([90,0,0]) {
+        #cylinder(d=1,h=30,center=true);
+// Roue V
+        roue();
 // Tête de vis M5 low-profile (1.5mm max)
-                color("black") translate([0,0,5.75]) cylinder(d=8.5,h=1.5,$fn=50,center=true);
-                
+        color("black") translate([0,0,5.75]) cylinder(d=8.5,h=1.5,$fn=50,center=true);
+// Rondelles 0.5mm
+        color("lightgrey") translate([0,0,-5.25]) difference() {
+            cylinder(d=12,h=0.5,center=true);
+            cylinder(d=5.5,h=0.6,center=true);
         }
         
+    }
 // Plaque    
-        difference() {
-           color("#FFA0A0") translate([xPos,i*540,0]) cube([120,5,110], center=true);
-
-// 4 trous
-        for (x=[-1,1], y=[-1,1])
-            translate([xPos+x*50,i*540,y*45.11]) rotate([90,0,0]) cylinder(d=5,h=6,$fn=20,center=true);
-        }
+    difference() {
+       color("lightgrey") translate([0,8,45]) cube([120,5,200], center=true);
+// 4 trous 
+/// @todo Ajouter les excentriques        
+        for (x=[-1,1], z=[-1,1]) translate([x*50,8,z*(50/sqrt(2)+9.80)]) rotate([90,0,0]) cylinder(d=5,h=6,$fn=20,center=true);    
     }
 }
 
-//**
-//* Support central
-//*
-//**
+/**
+ * Support de barre (central)
+ */
 module support() {    
 // Fond arrondi
     difference() {
@@ -97,7 +99,7 @@ module support() {
 // 2 Côté
     for (i=[-1,1]) difference() {
         hull() {
-            rotate([45-90,0,0]) translate([i*10,25-5,2.5]) #cube([5,45,0.01], center=true);
+            rotate([45-90,0,0]) translate([i*10,25-5,2.5]) cube([5,45,0.01], center=true);
             translate([i*10,(10+1.25)*sqrt(2),-58.5]) rotate([0,0,0]) cube([5,45/sqrt(2),0.01], center=true);
         }
         hull() {
@@ -116,38 +118,36 @@ module support() {
     }
     
 // Axes perçage Base
-#    for (y=[7.5,45/sqrt(2)-7.5]) translate([0,y,-58.5]) cylinder(d=1,h=20,$fn=20,center=true);
+    for (y=[7.5,45/sqrt(2)-7.5]) #translate([0,y,-58.5]) cylinder(d=1,h=20,center=true);
 }    
 
-//**
-//* Support moteur
-//*
-//**
-module supportM() {    
+/**
+ * Support moteur
+ */
+module supportM(l = 55) {
     support();
     difference() {
 // Boite support moteur    
-       translate([-40,55/sqrt(2),0]) rotate([45,0,0]) cube([65,60,60],center=true);
+       translate([-7.5-l/2,55/sqrt(2),0]) rotate([45,0,0]) cube([l,60,60],center=true);
 // Logement pour la barre
        translate([-9.5,(55+0.5)/sqrt(2),0]) rotate([45,0,0]) cube([6,50.5,50.5],center=true);
 // Évidements intérieurs        
-        hull() for (x=[-15,15],yz=[-15,15]) translate([-42.5-x,(47.5+yz+7.4455)/sqrt(2),(-7.5+yz+7.4455)/sqrt(2)]) rotate([45,0,0]) cylinder(d=20,h=61,$fn=50,center=true);
-        hull() for (x=[-15,15],yz=[-15,15]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(7.5-yz-7.4455)/sqrt(2)]) rotate([-45,0,0]) cylinder(d=20,h=61,$fn=50,center=true);
-// Passage tige filetée
-        translate([-15,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=20,h=10,$fn=50,center=true);
+        hull() for (x=[15,50-l],yz=[-15,15]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(-7.5+yz+7.4455)/sqrt(2)]) rotate([45,0,0]) cylinder(d=20,h=61,$fn=50,center=true);
+        hull() for (x=[15,50-l],yz=[-15,15]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(7.5-yz-7.4455)/sqrt(2)]) rotate([-45,0,0]) cylinder(d=20,h=61,$fn=50,center=true);
+// Passage support roulement
+        translate([-15,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=26.5,h=10,$fn=100,center=true);
 // Passage axe moteur
-        translate([-70,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=25,h=10,$fn=50,center=true);
+        translate([-5-l,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=25,h=6,$fn=50,center=true);
 // Fixations moteur
-        for(a=[-31/2,31/2],b=[-31/2,31/2])translate([-70,55/sqrt(2)+(a+b)/sqrt(2),(a-b)/sqrt(2)]) rotate([0,90,0]) cylinder(d=3.5,h=10,$fn=20,center=true);
+        for(a=[-31/2,31/2],b=[-31/2,31/2]) translate([-5-l,55/sqrt(2)+(a+b)/sqrt(2),(a-b)/sqrt(2)]) rotate([0,90,0]) cylinder(d=3.5,h=6,$fn=20,center=true);
 // Fixations Roulement
         for(a=[-37/2,37/2])translate([-15,55/sqrt(2),a]) rotate([0,90,0]) cylinder(d=4.5,h=10,$fn=20,center=true);
     }
 }    
 
-//**
-//* Support fin
-//*
-//**
+/**
+ * Support fin
+ */
 module supportF() {    
     support();
     
@@ -156,8 +156,8 @@ module supportF() {
         translate([7.5+5,55/sqrt(2),0]) rotate([45,0,0]) cube([10,60,60],center=true);
 // Logement pour la barre
        translate([9.5,(55+0.5)/sqrt(2),0]) rotate([45,0,0]) cube([6,50.5,50.5],center=true);
-// Passage tige filetée
-        translate([15,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=20,h=10,$fn=50,center=true);
+// Passage support roulement
+        translate([15,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=26.5,h=10,$fn=50,center=true);
 // Fixations Roulement
         for(a=[-37/2,37/2])translate([15,55/sqrt(2),a]) rotate([0,90,0]) cylinder(d=4.5,h=10,$fn=20,center=true);
     }
@@ -182,14 +182,13 @@ module nema17(Lmax = 34) {
         for (x=[-1,1], z=[-1,1]) {
             translate([-31/2*x,-Lmax/2+2,-31/2*z]) rotate([90,0,0]) cylinder(d=3,h=5,$fn=20,center=true);
 // Axes vis M3 moteur
-    #translate([-31/2*x,-Lmax/2+2,-31/2*z]) rotate([90,0,0]) cylinder(d=1,h=20,$fn=20,center=true);
+    #translate([-31/2*x,-Lmax/2+2,-31/2*z]) rotate([90,0,0]) cylinder(d=1,h=20,center=true);
         }
     }
 }
 
-
 /** 
- * KFL08    
+ * KFL08
  */
 module KFL08() {
     color("LightGrey") difference() {
@@ -211,7 +210,7 @@ module KFL08() {
         translate([0,0,-0.5]) cylinder(d=8,h=17,$fn=25);
     }
 // Axes vis M4
-#        for (i=[-1,1]) translate([i*37/2,0,-0.5]) cylinder(d=1,h=15,$fn=20,center=true);
+#        for (i=[-1,1]) translate([i*37/2,0,5]) cylinder(d=1,h=15,center=true);
 }
 
 /**
@@ -222,11 +221,11 @@ module KFL08() {
 /**
  * Axe X1
  */
- module axeX1(s = 195) {
+ module axeX(s = 195) {
 // Barre
     translate([0,-(50*9/10)/sqrt(2),0]) rotate([-45,0,0]) barre(50);
 // Leadscrew T8 * 1100mm
-    color("gold") translate([15,0,0]) rotate([0,90,0]) cylinder(d=8,h=1100,$fn=50,center=true);
+    color("gold") translate([0,0,0]) rotate([0,90,0]) cylinder(d=8,h=1050,$fn=50,center=true);
 // Supports centraux
     for (x=[-3*s/2,-s/2,s/2,3*s/2,3*s/2]) translate([x,-(50*11/10)/sqrt(2),0]) support();
 
@@ -235,12 +234,12 @@ module KFL08() {
 // Support moteur
         translate([0,(-50*11/10)/sqrt(2),0]) supportM();
 // Moteur Nema17 48mm
-        translate([-72.5,0,0]) rotate([0,45,90]) nema17(48);
+        translate([-62.5,0,0]) rotate([0,45,90]) nema17(48);
 // Roulement KFL08
-        translate([-17.5,0,0]) rotate([0,-90,0]) KFL08();    
+        translate([-22,0,0]) rotate([0,90,0]) KFL08();    
 // Shaft Coupler (8/10mm - 25x30mm)
         color("blue") {
-            translate([-50,0,0]) rotate([0,90,0]) cylinder(d=25,h=30,$fn=50,center=true);
+            translate([-40,0,0]) rotate([0,90,0]) cylinder(d=25,h=30,$fn=50,center=true);
         }
     }
     
@@ -248,9 +247,31 @@ module KFL08() {
     translate([5*s/2,0,0]) {
         translate([0,(-50*11/10)/sqrt(2),0]) supportF();
 // Roulement KFL08
-        translate([17.5,0,0]) rotate([0,90,0]) KFL08();    
+        translate([17.5+4.5,0,0]) rotate([0,-90,0]) KFL08();    
     }
 }
  
-translate([0,500,0]) axeX1();
-translate([0,-500,0]) mirror([0,1,0]) axeX1();
+module axeY(i=0) {
+// Barre 60x60x6 1000mm
+    translate([(-60*9/10)/sqrt(2),0,0]) rotate([-45,0,-90]) barre(60);
+// Chariot
+    translate([8,i,0]) cube([5,130,130,],center=true);
+    for (y=[-50,50],z=[-60/sqrt(2)-9.75,60/sqrt(2)+9.75]) {
+// Roues
+        translate([0,i+y,z]) rotate([0,90,0]) roue();
+// Rondelles de 0.5mm
+        #translate([5.25,i+y,z]) rotate([0,90,0]) cylinder(d=12,h=0.5,center=true);
+// Axes de fixation des roues
+        #translate([0,i+y,z]) rotate([0,90,0]) cylinder(d=1,h=30,center=true);
+    }
+}
+
+amp=430;
+translate([0,500,0]) axeX();
+translate([0,-500,0]) mirror([0,1,0]) axeX();
+translate([sin($t*360)*amp,500,0]) chariotX();
+translate([sin($t*360)*amp,-500,0]) mirror([0,1,0]) chariotX();
+
+translate([sin($t*360)*amp-25,0,60*sqrt(2)+10]) axeY(cos($t*360)*amp);
+
+//axeY();
