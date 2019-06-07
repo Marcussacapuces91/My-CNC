@@ -250,15 +250,22 @@ module chariotX() {
         for (x=[-1,1], z=[-1,1]) translate([x*50,8,z*(50/sqrt(2)+9.80)]) rotate([90,0,0]) cylinder(d=5,h=6,$fn=20,center=true);
 // Passage support roulement
          translate([-25,7,95]) rotate([90,0,0]) cylinder(d=26.5,h=10,$fn=100,center=true);
- // Fixations Roulement
+// Fixations Roulement
         for(a=[-37/2,37/2])translate([-25,7,a+95]) rotate([90,0,0]) cylinder(d=4.5,h=10,$fn=20,center=true);
-            
 // Fente accueil barre
      translate([-21-60/sqrt(2),8,60*sqrt(2)+10]) rotate([0,45,0]) union() {
         translate([30*9/10,0,0]) cube([60,6,6],center=true);
         translate([0,0,30*9/10]) cube([6,6,60],center=true);
         }
-           
+    }
+    difference() {
+// Bloque-Barre
+        translate([-25,8+5,95]) cube([70,5,85],center=true);
+// Creux support-roulement    
+        translate([-25,8+5,95]) rotate([90,0,0]) cylinder(d=26.5,h=6,center=true);
+// Fixations Roulement
+        for(a=[-37/2,37/2])translate([-25,7+5,a+95]) rotate([90,0,0]) cylinder(d=4.5,h=10,$fn=20,center=true);
+
     }
 }
 
@@ -275,7 +282,7 @@ module axeY(X=0) {
     color("gold") translate([-25,0,10+60*sqrt(2)]) rotate([90,0,0]) cylinder(d=8,h=1050,$fn=50,center=true);
 // Roulement KFL08 aux deux extrémités
     for (y=[-1,1]) {
-        translate([-25,y*largeur/2-15,10+60*sqrt(2)])
+        translate([-25,y*(largeur/2+15+5),10+60*sqrt(2)])
         rotate([y*90,90,0]) KFL08();    
     }
 }
