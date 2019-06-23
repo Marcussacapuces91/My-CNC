@@ -43,7 +43,7 @@ module roue() {
 /**
  * Support de barre (central)
  */
-module support() {    
+module support(imp = false) {    
 // Fond arrondi
     difference() {
         translate([0,5/sqrt(2)/2,-sqrt(2)-2.55]) cube([16,5/sqrt(2),15], center=true);
@@ -59,7 +59,7 @@ module support() {
                 }
                 cylinder(d=8,h=6,$fn=20,center=true);
 // Axe supérieur de percage vis sur rails
-                #cylinder(d=1,h=20,center=true);
+#                if (!imp) cylinder(d=1,h=20,center=true);
             }
         }
 // Plaque et trou inférieurs
@@ -67,15 +67,16 @@ module support() {
             cube([25,15,5],center=true);
             cylinder(d=8,h=6,$fn=20,center=true);
 // Axe inférieur de percage vis sur rails
-            #cylinder(d=1,h=20,center=true);
+#            if (!imp) cylinder(d=1,h=20,center=true);
         }
     }
-// 2 Côté
     for (i=[-1,1]) difference() {
+// 2 Côtés
         hull() {
             rotate([45-90,0,0]) translate([i*10,25-5,2.5]) cube([5,45,0.01], center=true);
             translate([i*10,(10+1.25)*sqrt(2),-58.5]) rotate([0,0,0]) cube([5,45/sqrt(2),0.01], center=true);
         }
+// Evidement côtés
         hull() {
             translate([i*10,2.60*sqrt(2)+5,-8.85*sqrt(2)-5]) rotate([0,90,0]) cylinder(d=7.5,h=6,$fn=40,center=true);
             translate([i*10,2.6*sqrt(2)+5,-52.2]) rotate([0,90,0]) cylinder(d=7.5,h=6,$fn=40,center=true);
@@ -92,14 +93,14 @@ module support() {
     }
     
 // Axes perçage Base
-    for (y=[7.5,45/sqrt(2)-7.5]) #translate([0,y,-58.5]) cylinder(d=1,h=20,center=true);
+#    if (!imp) for (y=[7.5,45/sqrt(2)-7.5]) translate([0,y,-58.5]) cylinder(d=1,h=20,center=true);
 }    
 
 /**
  * Support moteur
  */
-module supportM(l = 55) {
-    support();
+module supportM(l = 55, imp = false) {
+    support(imp);
     difference() {
 // Boite support moteur    
        translate([-7.5-l/2,55/sqrt(2),0]) rotate([45,0,0]) cube([l,60,60],center=true);
@@ -122,8 +123,8 @@ module supportM(l = 55) {
 /**
  * Support fin
  */
-module supportF() {    
-    support();
+module supportF(imp = false) {    
+    support(imp);
     
     difference() {
 // Boite support moteur    
@@ -308,5 +309,8 @@ translate([0,979/2,0]) axeX();
 translate([0,-979/2,0]) mirror([0,1,0]) axeX();
 
 translate([sin($t*360)*amp,0,0]) axeY(cos($t*360)*amp);
+axeY();
 
-//axeY();
+// translate([50,0,0]) supportF(imp=true);
+// translate([-50,0,0]) supportM(imp=true);
+// support(imp=true);
