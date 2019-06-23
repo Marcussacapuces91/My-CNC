@@ -102,21 +102,28 @@ module support(imp = false) {
 module supportM(l = 55, imp = false) {
     support(imp);
     difference() {
-// Boite support moteur    
-       translate([-7.5-l/2,55/sqrt(2),0]) rotate([45,0,0]) cube([l,60,60],center=true);
+// Boite support barre        
+       translate([15-l/2,55/sqrt(2),0]) rotate([45,0,0]) cube([10,60,60],center=true);
 // Logement pour la barre
        translate([-9.5,(55+0.5)/sqrt(2),0]) rotate([45,0,0]) cube([6,50.5,50.5],center=true);
-// Évidements intérieurs        
-        hull() for (x=[15,50-l],yz=[-15,15]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(-7.5+yz+7.4455)/sqrt(2)]) rotate([45,0,0]) cylinder(d=20,h=61,$fn=50,center=true);
-        hull() for (x=[15,50-l],yz=[-15,15]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(7.5-yz-7.4455)/sqrt(2)]) rotate([-45,0,0]) cylinder(d=20,h=61,$fn=50,center=true);
 // Passage support roulement
         translate([-15,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=26.5,h=10,$fn=100,center=true);
+// Fixations Roulement
+        for(a=[-37/2,37/2])translate([-15,55/sqrt(2),a]) rotate([0,90,0]) cylinder(d=4.5,h=10,$fn=20,center=true);
+    }
+
+    difference() {
+// Boite support moteur    
+       translate([-5-7.5-l/2,55/sqrt(2),0]) rotate([45,0,0]) cube([l-10,50,50],center=true);
+        
+// Évidements intérieurs      
+        translate([+5-42.5,(47.5+7.4455)/sqrt(2),(-7.5+7.4455)/sqrt(2)]) rotate([45,0,0]) cube([l-15,40,40],center=true);
+        hull() for (x=[15,50-l],yz=[-7.5,7.5]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(-7.5+yz+7.4455)/sqrt(2)]) rotate([45,0,0]) cylinder(d=20,h=51,$fn=50,center=true);
+        hull() for (x=[15,50-l],yz=[-7.5,7.5]) translate([-42.5+x,(47.5+yz+7.4455)/sqrt(2),(7.5-yz-7.4455)/sqrt(2)]) rotate([-45,0,0]) cylinder(d=20,h=51,$fn=50,center=true);
 // Passage axe moteur
         translate([-5-l,55/sqrt(2),0]) rotate([0,90,0]) cylinder(d=25,h=6,$fn=50,center=true);
 // Fixations moteur
         for(a=[-31/2,31/2],b=[-31/2,31/2]) translate([-5-l,55/sqrt(2)+(a+b)/sqrt(2),(a-b)/sqrt(2)]) rotate([0,90,0]) cylinder(d=3.5,h=6,$fn=20,center=true);
-// Fixations Roulement
-        for(a=[-37/2,37/2])translate([-15,55/sqrt(2),a]) rotate([0,90,0]) cylinder(d=4.5,h=10,$fn=20,center=true);
     }
 }    
 
@@ -187,11 +194,6 @@ module KFL08() {
 // Axes vis M4
 #        for (i=[-1,1]) translate([i*37/2,0,5]) cylinder(d=1,h=15,center=true);
 }
-
-/**
- * Plaque de support inférieure (planche martyr)
- */
-%translate([0,0,-70]) cube([1200,1200,18], center=true);
 
 /**
  * Axe X1 (X2 = mirror)
@@ -304,13 +306,20 @@ module chariotY() {
     }
 }
 
+/**
+ * Plaque de support inférieure (planche martyr)
+ */
+*%translate([0,0,-70]) cube([1200,1200,18], center=true);
+
+/*
 amp=430;
 translate([0,979/2,0]) axeX();
 translate([0,-979/2,0]) mirror([0,1,0]) axeX();
 
 translate([sin($t*360)*amp,0,0]) axeY(cos($t*360)*amp);
 axeY();
+*/
 
 // translate([50,0,0]) supportF(imp=true);
-// translate([-50,0,0]) supportM(imp=true);
+translate([-50,0,0]) supportM(imp=true);
 // support(imp=true);
